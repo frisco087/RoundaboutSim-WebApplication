@@ -14,7 +14,8 @@ public class User implements Serializable {
     private String username;
     private String password;
     private String bio;
-
+    private String score;
+    
     public User() {
     }
 
@@ -23,11 +24,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public User(String email, String username, String password, String bio) {
+    public User(String email, String username, String password, String bio, String score) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.bio = bio;
+        this.score = score;
     }
 
     public User(int userid) {
@@ -73,6 +75,14 @@ public class User implements Serializable {
     public void setBio(String bio) {
         this.bio = bio;
     }
+    
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
 
     public User Login(String username, String password) {
 
@@ -95,6 +105,7 @@ public class User implements Serializable {
                 this.setUsername(resultSet.getString("name"));
                 this.setPassword(resultSet.getString("password"));
                 this.setBio(resultSet.getString("bio"));
+                this.setScore(resultSet.getString("score"));
             }
             connection.close();
         } catch (SQLException ex) {
@@ -155,7 +166,7 @@ public class User implements Serializable {
                 u.setPassword(resultSet.getString("password"));
                 u.setEmail(resultSet.getString("email"));
                 u.setBio(resultSet.getString("bio"));
-
+                u.setScore(resultSet.getString("score"));
                 return u;
             }
             connection.close();
@@ -205,6 +216,7 @@ public class User implements Serializable {
                 s.setPassword(resultSet.getString("password"));
                 s.setEmail(resultSet.getString("email"));
                 s.setBio(resultSet.getString("bio"));
+                s.setScore(resultSet.getString("score"));
                 allusers.add(s);
                 System.out.println("All Users" + s);
             }
@@ -234,6 +246,35 @@ public class User implements Serializable {
             ps.setString(2, this.getPassword());
             ps.setString(3, this.getEmail());
             ps.setString(4, this.getBio());
+            ps.setInt(5, this.getUserid());
+            System.out.println("ps" + ps.toString());
+            ps.executeUpdate();
+
+            connection.close();
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return this;
+    }
+    
+    public User updateDatabaseAdmin(int userid, String name, String password, String email) {
+
+        Connection connection = DatabaseUtilityClass.getConnection();
+
+        this.setUsername(name);
+        this.setPassword(password);
+        this.setEmail(email);
+        this.setBio(bio);
+
+        String sql = "UPDATE user SET name = ?,  password = ?,  email = ? WHERE id = ? ";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setString(1, this.getUsername());
+            ps.setString(2, this.getPassword());
+            ps.setString(3, this.getEmail());
+            
             ps.setInt(5, this.getUserid());
             System.out.println("ps" + ps.toString());
             ps.executeUpdate();

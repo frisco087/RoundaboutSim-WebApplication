@@ -85,6 +85,7 @@
                 <h4>Password : ${user.password}</h4>
                 <p>Email : ${user.email}</p>
                 <p>Bio : ${user.bio}</p>
+                <p>Most recent score : ${user.score}</p>
                 <a href="editProfile.jsp"><li class="btn ">Edit Profile</li></a> 
             </div>
 

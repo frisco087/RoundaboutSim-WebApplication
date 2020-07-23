@@ -35,15 +35,15 @@ public class UserController extends HttpServlet {
             throws ServletException, IOException {
         System.out.println("user controller");
         HttpSession session = request.getSession();
+        
         User user = (User) session.getAttribute("user");
         if (user == null) {
             System.out.println("no user object");
             user = new User();
             session.setAttribute("user", user);
         }
-
+        
         String menu = request.getParameter("menu");
-
         System.out.println("menu " + menu);
         switch (menu) {
 
@@ -71,7 +71,7 @@ public class UserController extends HttpServlet {
                     session.setAttribute("message", message);
                     gotoPage("/login.jsp", request, response);
                 } else {
-
+                    //Admin login
                     if ("admin".equals(use.getUsername())) {
                         String password = "123";
                         String md5 = encryption(password);
@@ -79,13 +79,15 @@ public class UserController extends HttpServlet {
                         if (md5.equals(use.getPassword())) {
                             System.out.println("admin");
                             User users = new User();
+                            //get all users
                             ArrayList<User> allusers = new ArrayList<>();
                             allusers = users.getAllUsers();
+                            //put in session
                             session.setAttribute("allusers", allusers);
                             gotoPage("/admin.jsp", request, response);
                         }
                     } else {
-                        System.out.println("normal");
+                        System.out.println("normal user logged in");
                         gotoPage("/index.jsp", request, response);
                     }
                 }
@@ -138,6 +140,7 @@ public class UserController extends HttpServlet {
                 gotoPage("/index.jsp", request, response);
                 break;
 
+            //admin area -> go to edit specific user
             case "getUserView":
                 String userid = request.getParameter("user_id");
                 int user_id = Integer.parseInt(userid);
@@ -164,6 +167,7 @@ public class UserController extends HttpServlet {
                 gotoPage("/detailedUserView.jsp", request, response);
                 break;
 
+            //admin update user details
             case "Update":
                 ProcessUpdate(request, session, user);
                 User users = new User();
@@ -173,11 +177,13 @@ public class UserController extends HttpServlet {
                 gotoPage("/admin.jsp", request, response);
                 break;
 
+            //user update profile
             case "Update Profile":
                 boolean worked = ProcessUserUpdate(request, user, session);
                 gotoPage("/profile.jsp", request, response);
                 break;
 
+            //Admin delete user
             case "DeleteUser":
                 String snid = request.getParameter("user_id");
                 int nid = Integer.parseInt(snid);
@@ -191,6 +197,7 @@ public class UserController extends HttpServlet {
                 gotoPage("/admin.jsp", request, response);
                 break;
 
+            //user delete account
             case "Delete User":
                 ProcessDelete(request, user, session);
                 session.invalidate();
@@ -207,14 +214,22 @@ public class UserController extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String email = request.getParameter("email");
-        String bio = request.getParameter("bio");
+        
         int UserID = user.getUserid();
-        System.out.println("in process update");
         String md5 = encryption(password);
-        User u = user.updateDatabase(UserID, username, md5, email, bio);
+        String passcheck = user.getPassword();
+        
+         if(password.equals(passcheck)){
+            User u = user.updateDatabaseAdmin(UserID, username, password, email);
+            session.setAttribute("user", u);
+        }else{
+            User u = user.updateDatabaseAdmin(UserID, username, md5, email);
+            session.setAttribute("user", u);
+        }
+         
+        System.out.println("in process update");
         // put it back in the sesssion
         System.out.println("after update");
-        session.setAttribute("user", u);
         return true;
     }
 
@@ -254,8 +269,10 @@ public class UserController extends HttpServlet {
         String password = request.getParameter("password");
         String password2 = request.getParameter("password2");
         String bio = request.getParameter("bio");
+        String score = request.getParameter("score");
         String md5 = encryption(password);
-        User us = new User(email, username, md5, bio);
+        
+        User us = new User(email, username, md5, bio, score);
         us.saveToDatabase();
 
         session.setAttribute("user", us);
@@ -269,6 +286,52 @@ public class UserController extends HttpServlet {
         RequestDispatcher dispatcher
                 = getServletContext().getRequestDispatcher(url);
         dispatcher.forward(request, response);
+    }
+    
+     private void UserDetails(HttpServletRequest request, User user, HttpSession session) {
+        int UserID = user.getUserid();
+
+        User u = new User(user.getUserid());
+        u = u.getUserDetails(UserID);
+        session.setAttribute("user", u);
+    }
+
+    private boolean ProcessUserUpdate(HttpServletRequest request, User user, HttpSession session) {
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String md5 = encryption(password);
+        String bio = request.getParameter("bio");
+        String passcheck = user.getPassword();
+        int UserID = user.getUserid();
+        
+        if(password.equals(passcheck)){
+            User u = user.updateDatabase(UserID, username, password, email, bio);
+            session.setAttribute("user", u);
+        }else{
+            User u = user.updateDatabase(UserID, username, md5, email, bio);
+            session.setAttribute("user", u);
+        }
+        
+        System.out.println("in process update");
+
+        
+        // put it back in the sesssion
+        System.out.println("after update");
+        return true;
+    }
+
+    private String encryption(String password) {
+        String md5 = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(password.getBytes(), 0, password.length());
+            md5 = new BigInteger(1, digest.digest()).toString(16);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return md5;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -310,40 +373,5 @@ public class UserController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private void UserDetails(HttpServletRequest request, User user, HttpSession session) {
-        int UserID = user.getUserid();
-
-        User u = new User(user.getUserid());
-        u = u.getUserDetails(UserID);
-        session.setAttribute("user", u);
-    }
-
-    private boolean ProcessUserUpdate(HttpServletRequest request, User user, HttpSession session) {
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String email = request.getParameter("email");
-        String md5 = encryption(password);
-        String bio = request.getParameter("bio");
-        int UserID = user.getUserid();
-        System.out.println("in process update");
-
-        User u = user.updateDatabase(UserID, username, md5, email, bio);
-        // put it back in the sesssion
-        System.out.println("after update");
-        session.setAttribute("user", u);
-        return true;
-    }
-
-    private String encryption(String password) {
-        String md5 = null;
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(password.getBytes(), 0, password.length());
-            md5 = new BigInteger(1, digest.digest()).toString(16);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(UserController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return md5;
-    }
+   
 }
