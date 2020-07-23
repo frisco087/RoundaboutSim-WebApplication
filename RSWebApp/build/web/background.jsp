@@ -76,9 +76,19 @@
             </div>
 
             <!--text section-->
-            <div class="center-item" data-aos="fade-up" data-aos-offset="10" data-aos-delay="5" data-aos-duration="500" data-aos-easing="ease-in-out" data-aos-mirror="true" data-aos-once="true" data-aos-anchor-placement="top">
-             
-                
+            <div class="text-section" data-aos="fade-up" data-aos-offset="10" data-aos-delay="5" data-aos-duration="500" data-aos-easing="ease-in-out" data-aos-mirror="true" data-aos-once="true" data-aos-anchor-placement="top">
+                <h1>Research</h1>
+                <hr>
+                <p> As a road user, I have witnessed a lot of drivers using a roundabout incorrectly which can lead to a potential car crash. 
+                    Roundabouts come in different sizes, some with more exits than others. A few are controlled by traffic lights while others 
+                    are regulated by road markings. Roundabouts can be dangerous if not used correctly which has the potential to lead to road 
+                    fatalities. In 2010 The AA Insurance company conducted a survey of more than 6,800 motorists that revealed that 42% of drivers 
+                    have had ‘near miss’ on Irish roundabouts, 3% have had a collision.  <br><br>According to a survey carried out by the AA motor insurance company, 
+                    they have revealed that about 45% of motorists have been involved in a collision or near miss 
+                    on a roundabout between the years of 2007 – 2010. Just 3% of these resulted in actual collisions 
+                    and 42% of these were close calls, the survey had almost 7,000 participants. An earlier survey 
+                    conducted by the AA revealed that the most common driver errors witnessed on a roundabout is “lack of signalling”. 
+                    (O’ Neill, 2010)</p>
             </div>
 
             <div class="pusher"></div>
